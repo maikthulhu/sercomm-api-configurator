@@ -18,8 +18,11 @@ def http_post_sercomm_config(camera_address, configparser):
     d = None
     with StringIO('') as f:
         configparser.write(f)
+        f.seek(0)
         d = f.read()
 
+    d = sercomm_config_encode(d)
+    
     r = requests.post(f"http://{camera_address}/adm/upload.cgi", data=d)
 
     return r.status_code
@@ -35,7 +38,7 @@ def sercomm_config_encode(config_ini):
     sercomm_b64_table = bytes(SERCOMM_B64_TABLE, 'utf-8')
     std_b64_table     = bytes(STD_B64_TABLE, 'utf-8')
 
-    config_ini_b64 = base64.b64encode(config_ini)
+    config_ini_b64 = base64.b64encode(bytes(config_ini, 'utf-8'))
 
     sercomm_b64_config = config_ini_b64.translate(bytes.maketrans(std_b64_table, sercomm_b64_table))
 
